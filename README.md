@@ -15,3 +15,6 @@ Personal URL Shortener built with Next.js + Supabase.
 Create `.env.local` later with:
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
+
+## Deployment
+Vercel is connected to the `main` branch.
