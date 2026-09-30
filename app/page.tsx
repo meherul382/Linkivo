@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { getSupabaseBrowser } from "../lib/supabase/browser";
 
 type SavedLink = {
   slug: string;
@@ -16,6 +17,11 @@ export default function Home() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [myLinks, setMyLinks] = useState<SavedLink[]>([]);
+
+  async function logout() {
+    await getSupabaseBrowser().auth.signOut();
+    window.location.href = "/login";
+  }
 
   useEffect(() => {
     try {
@@ -89,7 +95,7 @@ export default function Home() {
           <a className="nav-card" href="/links">↗ <span>My Links</span></a>
           <a className="nav-card" href="/analytics">◉ <span>Analytics</span></a>
         </div>
-        <span className="badge">Personal URL Shortener</span>
+        <div className="account-actions"><span className="badge">Personal URL Shortener</span><button className="logout" type="button" onClick={logout}>Logout</button></div>
       </div>
 
       <div className="hero-grid">
@@ -182,7 +188,7 @@ export default function Home() {
       .page{min-height:100vh;background:radial-gradient(circle at 80% 10%,rgba(80,112,255,.18),transparent 32%),radial-gradient(circle at 10% 30%,rgba(0,219,255,.09),transparent 25%),#07111f}
       .hero{padding:28px 0 70px}.nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:80px}
       .brand{display:flex;align-items:center;gap:10px;font-size:20px;font-weight:800}.top-nav{display:flex;align-items:center;gap:8px;margin-left:auto;margin-right:18px}.nav-card{display:flex;align-items:center;gap:7px;padding:9px 13px;border:1px solid rgba(255,255,255,.09);border-radius:12px;color:#9fb0c7;text-decoration:none;font-size:12px;background:rgba(255,255,255,.025);transition:.2s}.nav-card:hover,.nav-card.active{color:#fff;border-color:rgba(57,217,255,.35);background:rgba(57,217,255,.08)}.nav-card span{font-weight:600}.logo{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#7c5cff,#1fd6ff);box-shadow:0 10px 30px rgba(76,108,255,.25)}
-      .badge{padding:8px 12px;border:1px solid rgba(255,255,255,.12);border-radius:999px;color:#aebdd2;font-size:12px}
+      .account-actions{display:flex;align-items:center;gap:8px}.badge{padding:8px 12px;border:1px solid rgba(255,255,255,.12);border-radius:999px;color:#aebdd2;font-size:12px}.logout{padding:8px 12px;border:1px solid rgba(255,255,255,.12);border-radius:999px;background:rgba(255,255,255,.04);color:#ffb4c0;font-size:12px;cursor:pointer}.logout:hover{border-color:#6a3544;background:#281722}
       .hero-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:70px;align-items:center}.eyebrow{letter-spacing:.18em;color:#75cfff;font-size:11px;font-weight:700}
       h1{font-size:clamp(48px,7vw,82px);line-height:.98;margin:18px 0}.lead{max-width:600px;color:#9fb0c7;font-size:18px;line-height:1.7}.hero h1 span{background:linear-gradient(90deg,#8e6cff,#39d9ff);-webkit-background-clip:text;background-clip:text;color:transparent}
       .stats{display:flex;gap:34px;margin-top:42px}.stats div{display:flex;flex-direction:column;gap:4px}.stats strong{font-size:22px}.stats small{color:#74879f}
