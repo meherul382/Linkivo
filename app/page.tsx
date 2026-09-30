@@ -83,7 +83,7 @@ export default function Home() {
   return <main className="page">
     <section className="hero container">
       <div className="nav">
-        <div className="brand"><span className="logo">C</span><span>CanvaLives</span></div>
+        <div className="brand"><span className="logo">C</span><span>canvalives</span></div>
         <span className="badge">Personal URL Shortener</span>
       </div>
 
@@ -111,7 +111,7 @@ export default function Home() {
             </label>
 
             <label>Custom alias <em>optional</em>
-              <div className="alias"><span>CanvaLives /</span><input value={alias} onChange={e=>setAlias(e.target.value)} placeholder="my-link" /></div>
+              <div className="alias"><span>canvalives /</span><input value={alias} onChange={e=>setAlias(e.target.value)} placeholder="my-link" /></div>
             </label>
 
             <button className="primary" type="submit" disabled={loading}>
