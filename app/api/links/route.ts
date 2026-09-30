@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const destinationUrl = String(body?.url ?? "").trim();
     const requestedAlias = String(body?.alias ?? "").trim();
-    const slug = requestedAlias || Math.random().toString(36).slice(2, 9);
+    const slug = requestedAlias || Math.random().toString(36).slice(2, 8);
 
     if (!/^https?:\/\//i.test(destinationUrl) || destinationUrl.length > 2048) {
       return NextResponse.json({ error: "Please enter a valid http/https URL." }, { status: 400 });
