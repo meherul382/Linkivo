@@ -9,7 +9,7 @@ export default function Home(){
 
   function createLink(e:React.FormEvent){
     e.preventDefault();
-    if(!/^https?:\\/\\//i.test(url)) return;
+    if(!/^https?:\/\//i.test(url)) return;
     const slug=alias.trim() || Math.random().toString(36).slice(2,8);
     setCreated(`https://linkivo.com/${slug}`);
   }
