@@ -1,6 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+type SavedLink = {
+  slug: string;
+  shortUrl: string;
+  destinationUrl: string;
+  createdAt: string;
+};
 
 export default function Home() {
   const [url, setUrl] = useState("");
@@ -8,6 +15,34 @@ export default function Home() {
   const [created, setCreated] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [myLinks, setMyLinks] = useState<SavedLink[]>([]);
+
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem("linkivo_my_links") || "[]");
+      if (Array.isArray(saved)) setMyLinks(saved);
+    } catch {
+      setMyLinks([]);
+    }
+  }, []);
+
+  function saveLink(link: SavedLink) {
+    const next = [link, ...myLinks.filter(item => item.slug !== link.slug)];
+    setMyLinks(next);
+    localStorage.setItem("linkivo_my_links", JSON.stringify(next));
+  }
+
+  function removeLink(slug: string) {
+    const next = myLinks.filter(item => item.slug !== slug);
+    setMyLinks(next);
+    localStorage.setItem("linkivo_my_links", JSON.stringify(next));
+  }
+
+  async function copyLink(shortUrl: string) {
+    try {
+      await navigator.clipboard.writeText(shortUrl);
+    } catch {}
+  }
 
   async function createLink(e: React.FormEvent) {
     e.preventDefault();
@@ -30,6 +65,12 @@ export default function Home() {
       }
 
       setCreated(data.shortUrl);
+      saveLink({
+        slug: data.slug,
+        shortUrl: data.shortUrl,
+        destinationUrl: data.destinationUrl,
+        createdAt: new Date().toISOString(),
+      });
       setUrl("");
       setAlias("");
     } catch {
@@ -89,6 +130,43 @@ export default function Home() {
       </div>
     </section>
 
+
+    <section className="my-links container">
+      <div className="my-links-head">
+        <div>
+          <p className="eyebrow">LINK LIBRARY</p>
+          <h2>My Links</h2>
+          <p>All short links you create on this browser are saved here.</p>
+        </div>
+        <span className="count">{myLinks.length} links</span>
+      </div>
+
+      {myLinks.length === 0 ? (
+        <div className="empty-links">
+          <div className="empty-icon">↗</div>
+          <strong>No links yet</strong>
+          <span>Create your first short link above and it will appear here.</span>
+        </div>
+      ) : (
+        <div className="links-list">
+          {myLinks.map(link => (
+            <div className="link-row" key={link.slug}>
+              <div className="link-main">
+                <a href={link.shortUrl} className="short-link">{link.shortUrl}</a>
+                <div className="destination">{link.destinationUrl}</div>
+                <small>{new Date(link.createdAt).toLocaleString()}</small>
+              </div>
+              <div className="link-actions">
+                <button type="button" onClick={() => copyLink(link.shortUrl)}>Copy</button>
+                <a href={"/analytics/" + link.slug}>Analytics</a>
+                <button type="button" className="danger" onClick={() => removeLink(link.slug)}>Delete</button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </section>
+
     <section className="features container">
       <div><span>01</span><h3>Simple dashboard</h3><p>Keep every personal short link in one place.</p></div>
       <div><span>02</span><h3>Real analytics</h3><p>Track clicks, devices, countries, browsers and timing.</p></div>
@@ -110,8 +188,8 @@ export default function Home() {
       .primary{width:100%;margin-top:14px;padding:15px 18px;border:0;border-radius:13px;color:#fff;font-weight:800;background:linear-gradient(90deg,#7658ff,#18cfff);cursor:pointer}.primary span{float:right}.primary:disabled{opacity:.65;cursor:wait}
       .error{margin-top:16px;padding:12px 14px;border-radius:12px;background:#3a1821;border:1px solid #703043;color:#ffb5c2;font-size:13px}
       .result{margin-top:18px;padding:14px;border-radius:14px;background:#0c2237;border:1px solid rgba(57,217,255,.2)}.result small{color:#7f95ad}.result div{display:flex;gap:10px;align-items:center;margin-top:7px}.result strong{font-size:13px;word-break:break-all;flex:1}.result button{border:0;background:#1a3550;color:#fff;padding:8px 11px;border-radius:9px;cursor:pointer}.analytics{display:inline-block;margin-top:12px;color:#6ee2ff;font-size:12px}
-      .features{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;padding-bottom:70px}.features>div{padding:24px;border:1px solid rgba(255,255,255,.09);border-radius:20px;background:rgba(255,255,255,.025)}.features span{color:#5edcff;font-size:12px}.features h3{margin:12px 0 7px}.features p{color:#8194ab;line-height:1.6;font-size:14px}
-      @media(max-width:820px){.hero-grid,.features{grid-template-columns:1fr}.nav{margin-bottom:55px}.stats{gap:18px;flex-wrap:wrap}}
+      .my-links{padding:10px 0 70px}.my-links-head{display:flex;align-items:end;justify-content:space-between;margin-bottom:18px}.my-links-head h2{font-size:32px;margin:6px 0}.my-links-head>div>p:last-child{color:#8194ab;margin:0}.count{padding:8px 12px;border:1px solid rgba(255,255,255,.1);border-radius:999px;color:#8ea2ba;font-size:12px}.empty-links{padding:38px;text-align:center;border:1px solid rgba(255,255,255,.09);border-radius:20px;background:rgba(255,255,255,.025);display:flex;flex-direction:column;align-items:center;gap:8px}.empty-icon{width:44px;height:44px;display:grid;place-items:center;border-radius:14px;background:rgba(57,217,255,.1);color:#6ee2ff;font-size:20px}.empty-links span{color:#71849b;font-size:13px}.links-list{display:grid;gap:12px}.link-row{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:18px 20px;border:1px solid rgba(255,255,255,.09);border-radius:18px;background:rgba(10,24,43,.68)}.link-main{min-width:0}.short-link{color:#6ee2ff;font-weight:800;text-decoration:none;font-size:14px}.destination{color:#a1b1c5;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:650px;margin-top:6px}.link-main small{display:block;color:#61758e;font-size:11px;margin-top:7px}.link-actions{display:flex;gap:8px;flex-shrink:0}.link-actions button,.link-actions a{border:1px solid #263d58;background:#122941;color:#dce8f5;padding:8px 11px;border-radius:9px;font-size:12px;text-decoration:none;cursor:pointer}.link-actions .danger{color:#ff9faf;border-color:#4a2732;background:#281722}.features{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;padding-bottom:70px}.features>div{padding:24px;border:1px solid rgba(255,255,255,.09);border-radius:20px;background:rgba(255,255,255,.025)}.features span{color:#5edcff;font-size:12px}.features h3{margin:12px 0 7px}.features p{color:#8194ab;line-height:1.6;font-size:14px}
+      @media(max-width:820px){.hero-grid,.features{grid-template-columns:1fr}.nav{margin-bottom:55px}.stats{gap:18px;flex-wrap:wrap}.my-links-head{align-items:flex-start;gap:15px}.link-row{align-items:flex-start;flex-direction:column}.link-actions{width:100%;flex-wrap:wrap}.link-actions button,.link-actions a{flex:1;text-align:center}.destination{max-width:100%}}
     `}
     </style>
   </main>;
