@@ -11,7 +11,7 @@ export default function Home(){
     e.preventDefault();
     if(!/^https?:\/\//i.test(url)) return;
     const slug=alias.trim() || Math.random().toString(36).slice(2,8);
-    setCreated(`https://linkivo.com/${slug}`);
+    setCreated(`${window.location.origin}/${slug}`);
   }
 
   return <main className="page">
