@@ -1,14 +1,10 @@
 import { createClient } from "@supabase/supabase-js";
 
+const SUPABASE_URL = "https://eeldlrstipmafirjvogl.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_EQKZh3BiLS33PRLPwu5Gog_bBPHMHhv";
+
 export function getSupabaseAdmin() {
-  const url = process.env.SUPABASE_URL;
-  const key = process.env.SUPABASE_SECRET_KEY;
-
-  if (!url || !key) {
-    throw new Error("Supabase environment variables are missing.");
-  }
-
-  return createClient(url, key, {
+  return createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
     auth: { autoRefreshToken: false, persistSession: false },
   });
 }
