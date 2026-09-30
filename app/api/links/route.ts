@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Could not create the short link." }, { status: 500 });
     }
 
-    const appOrigin = (process.env.NEXT_PUBLIC_APP_URL || "https://linkivo-nu.vercel.app").replace(/\/$/, "");
+    const appOrigin = (process.env.NEXT_PUBLIC_APP_URL || "https://canvalives.com").replace(/\/$/, "");
 
     return NextResponse.json({
       slug: data.slug,
