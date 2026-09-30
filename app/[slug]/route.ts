@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createHash } from "node:crypto";
-import { getSupabaseAdmin } from "@/lib/supabase/admin";
+import { getSupabaseAdmin } from "../../lib/supabase/admin";
 
 function parseDevice(userAgent: string) {
   if (/bot|crawler|spider|slurp|facebookexternalhit|preview/i.test(userAgent)) return "bot";
