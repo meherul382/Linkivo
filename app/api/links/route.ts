@@ -42,8 +42,9 @@ export async function POST(request:NextRequest){
       if(error.message.includes("INVALID_"))return NextResponse.json({error:"Invalid link information."},{status:400});
       console.error(error);return NextResponse.json({error:"Could not create the short link."},{status:500});
     }
+    const shortDomain = domain;
     return NextResponse.json({
-      slug:data.slug,destinationUrl:data.destination_url,shortUrl:`https://${data.short_domain}/${data.slug}`,createdAt:data.created_at,domain:data.short_domain
+      slug:data.slug,destinationUrl:data.destination_url,shortUrl:`https://${shortDomain}/${data.slug}`,createdAt:data.created_at,domain:shortDomain
     });
   }catch(error){console.error(error);return NextResponse.json({error:"Could not create the short link."},{status:500});}
 }
