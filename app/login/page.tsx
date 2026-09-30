@@ -16,9 +16,10 @@ export default function LoginPage() {
     setError("");
     setLoading(true);
     const supabase=getSupabaseBrowser();
-    const email=username.trim().toLowerCase()==="admin" ? "admin@canvalives.com" : "";
+    const value=username.trim().toLowerCase();
+    const email=(value==="admin" || value==="admin@canvalives.com") ? "admin@canvalives.com" : "";
     if(!email){
-      setError("Use the admin username.");
+      setError("Username must be admin.");
       setLoading(false);
       return;
     }
