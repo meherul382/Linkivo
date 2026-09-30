@@ -6,7 +6,7 @@ import { getSupabaseBrowser } from "../../lib/supabase/browser";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [email,setEmail]=useState("");
+  const [username,setUsername]=useState("");
   const [password,setPassword]=useState("");
   const [error,setError]=useState("");
   const [loading,setLoading]=useState(false);
@@ -16,9 +16,15 @@ export default function LoginPage() {
     setError("");
     setLoading(true);
     const supabase=getSupabaseBrowser();
+    const email=username.trim().toLowerCase()==="admin" ? "admin@canvalives.com" : "";
+    if(!email){
+      setError("Use the admin username.");
+      setLoading(false);
+      return;
+    }
     const {error}=await supabase.auth.signInWithPassword({email,password});
     if(error){
-      setError("Email or password is incorrect.");
+      setError("Username or password is incorrect.");
       setLoading(false);
       return;
     }
@@ -31,12 +37,12 @@ export default function LoginPage() {
       <div className="logo">C</div>
       <p className="eyebrow">PRIVATE ACCESS</p>
       <h1>Welcome back</h1>
-      <p className="sub">Sign in to access your canvalives dashboard.</p>
+      <p className="sub">Sign in to your canvalives dashboard.</p>
       <form onSubmit={login}>
-        <label>Email<input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@example.com" autoComplete="email" required /></label>
+        <label>Username<input value={username} onChange={e=>setUsername(e.target.value)} placeholder="admin" autoComplete="username" required /></label>
         <label>Password<input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="••••••••" autoComplete="current-password" required /></label>
-        {error && <div className="error">{error}</div>}
-        <button disabled={loading}>{loading ? "Signing in..." : "Sign in →"}</button>
+        {error&&<div className="error">{error}</div>}
+        <button disabled={loading}>{loading?"Signing in...":"Sign in →"}</button>
       </form>
     </div>
     <style jsx>{`
