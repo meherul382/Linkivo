@@ -48,21 +48,27 @@ export async function GET(
   }
 
   const userAgent = request.headers.get("user-agent") || "";
-  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "";
-  const ipHash = ip ? createHash("sha256").update(ip + "linkivo-analytics").digest("hex") : null;
+  const isBot = /bot|crawler|spider|slurp|facebookexternalhit|facebot|twitterbot|linkedinbot|whatsapp|telegrambot|discordbot/i.test(userAgent);
 
-  const { error: eventError } = await supabase.rpc("linkivo_record_click", {
-    p_link_id: row.id,
-    p_country: request.headers.get("x-vercel-ip-country"),
-    p_city: request.headers.get("x-vercel-ip-city"),
-    p_device_type: parseDevice(userAgent),
-    p_browser: parseBrowser(userAgent),
-    p_os: parseOs(userAgent),
-    p_referrer: request.headers.get("referer"),
-    p_ip_hash: ipHash,
-  });
+  // Social preview crawlers must receive the exact same destination as normal visitors.
+  // Do not count previews as clicks; this keeps analytics clean without changing the redirect.
+  if (!isBot) {
+    const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "";
+    const ipHash = ip ? createHash("sha256").update(ip + "linkivo-analytics").digest("hex") : null;
 
-  if (eventError) console.error("Analytics error:", eventError);
+    const { error: eventError } = await supabase.rpc("linkivo_record_click", {
+      p_link_id: row.id,
+      p_country: request.headers.get("x-vercel-ip-country"),
+      p_city: request.headers.get("x-vercel-ip-city"),
+      p_device_type: parseDevice(userAgent),
+      p_browser: parseBrowser(userAgent),
+      p_os: parseOs(userAgent),
+      p_referrer: request.headers.get("referer"),
+      p_ip_hash: ipHash,
+    });
+
+    if (eventError) console.error("Analytics error:", eventError);
+  }
 
   try {
     const destination = new URL(row.destination_url);
@@ -71,7 +77,10 @@ export async function GET(
     }
     return NextResponse.redirect(destination, {
       status: 302,
-      headers: { "Cache-Control": "no-store" },
+      headers: {
+        "Cache-Control": "no-store",
+        "Referrer-Policy": "strict-origin-when-cross-origin",
+      },
     });
   } catch {
     return NextResponse.json({ error: "Invalid destination URL." }, { status: 400 });
