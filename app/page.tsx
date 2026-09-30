@@ -116,7 +116,7 @@ export default function Home() {
             </label>
 
             <label>Custom alias <em>optional</em>
-              <div className="alias"><span>canvalives /</span><input value={alias} onChange={e=>setAlias(e.target.value)} placeholder="my-link" /></div>
+              <div className="alias"><span>canvalives.com/</span><input value={alias} onChange={e=>setAlias(e.target.value)} placeholder="my-link" /></div>
             </label>
 
             <button className="primary" type="submit" disabled={loading}>
@@ -175,7 +175,7 @@ export default function Home() {
     <section className="features container">
       <div><span>01</span><h3>Simple dashboard</h3><p>Keep every personal short link in one place.</p></div>
       <div><span>02</span><h3>Real analytics</h3><p>Track clicks, devices, countries, browsers and timing.</p></div>
-      <div><span>03</span><h3>Fast redirects</h3><p>Each short URL resolves through Linkivo and records the click.</p></div>
+      <div><span>03</span><h3>Fast redirects</h3><p>Each short URL resolves through canvalives and records the click.</p></div>
     </section>
 
     <style jsx>{`
