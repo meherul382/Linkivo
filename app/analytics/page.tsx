@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-type SavedLink={slug:string;shortUrl:string;destinationUrl:string;createdAt:string};
+type LinkRow={slug:string;shortUrl:string;destinationUrl:string;clicks:number};
 type Analytics={slug:string;shortUrl:string;destinationUrl:string;clicks:number;today:number};
 
 export default function AnalyticsOverview(){
@@ -12,13 +12,15 @@ export default function AnalyticsOverview(){
   useEffect(()=>{
     async function load(){
       try{
-        const saved=JSON.parse(localStorage.getItem("canvalives_my_links")||"[]") as SavedLink[];
+        const r=await fetch("/api/links",{cache:"no-store"});
+        const d=await r.json();
+        const saved=(r.ok && Array.isArray(d.links)?d.links:[]) as LinkRow[];
         const results=await Promise.all(saved.map(async l=>{
           try{
-            const r=await fetch("/api/analytics/"+l.slug,{cache:"no-store"});
-            const d=await r.json();
-            return {slug:l.slug,shortUrl:l.shortUrl,destinationUrl:l.destinationUrl,clicks:Number(d?.link?.clicks||0),today:Number(d?.todayClicks||0)};
-          }catch{return {slug:l.slug,shortUrl:l.shortUrl,destinationUrl:l.destinationUrl,clicks:0,today:0};}
+            const rr=await fetch("/api/analytics/"+l.slug,{cache:"no-store"});
+            const dd=await rr.json();
+            return {slug:l.slug,shortUrl:l.shortUrl,destinationUrl:l.destinationUrl,clicks:Number(dd?.link?.clicks||l.clicks||0),today:Number(dd?.todayClicks||0)};
+          }catch{return {slug:l.slug,shortUrl:l.shortUrl,destinationUrl:l.destinationUrl,clicks:l.clicks||0,today:0};}
         }));
         setLinks(results);
       }finally{setLoading(false);}
