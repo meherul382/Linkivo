@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSupabaseAdmin } from "@/lib/supabase/admin";
+import { getSupabaseAdmin } from "../../../lib/supabase/admin";
 
 const ALIAS_RE = /^[a-zA-Z0-9_-]{3,40}$/;
 
