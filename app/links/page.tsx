@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-type SavedLink={slug:string;shortUrl:string;destinationUrl:string;createdAt:string;clicks:number};
+type SavedLink={slug:string;shortUrl:string;destinationUrl:string;createdAt:string;clicks:number;domain?:string};
 
 export default function MyLinksPage() {
   const [links,setLinks]=useState<SavedLink[]>([]);
