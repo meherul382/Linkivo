@@ -2,31 +2,27 @@
 
 import { useEffect, useState } from "react";
 
-type SavedLink = {
-  slug: string;
-  shortUrl: string;
-  destinationUrl: string;
-  createdAt: string;
-};
+type SavedLink={slug:string;shortUrl:string;destinationUrl:string;createdAt:string;clicks:number};
 
 export default function MyLinksPage() {
-  const [links, setLinks] = useState<SavedLink[]>([]);
+  const [links,setLinks]=useState<SavedLink[]>([]);
+  const [loading,setLoading]=useState(true);
 
-  useEffect(() => {
-    try {
-      const saved = JSON.parse(localStorage.getItem("canvalives_my_links") || "[]");
-      if (Array.isArray(saved)) setLinks(saved);
-    } catch {}
-  }, []);
-
-  async function copy(url: string) {
-    try { await navigator.clipboard.writeText(url); } catch {}
+  async function load(){
+    try{
+      const r=await fetch("/api/links",{cache:"no-store"});
+      const d=await r.json();
+      if(r.ok && Array.isArray(d.links)) setLinks(d.links);
+    }finally{setLoading(false);}
   }
 
-  function remove(slug: string) {
-    const next = links.filter(x => x.slug !== slug);
-    setLinks(next);
-    localStorage.setItem("canvalives_my_links", JSON.stringify(next));
+  useEffect(()=>{load();},[]);
+
+  async function copy(url:string){try{await navigator.clipboard.writeText(url);}catch{}}
+
+  async function remove(slug:string){
+    const r=await fetch("/api/links/"+encodeURIComponent(slug),{method:"DELETE"});
+    if(r.ok) setLinks(prev=>prev.filter(x=>x.slug!==slug));
   }
 
   return (
@@ -34,29 +30,28 @@ export default function MyLinksPage() {
       <div className="container">
         <header className="header">
           <a className="brand" href="/"><span className="logo">C</span><span>canvalives</span></a>
-          <nav>
-            <a href="/">⌂ Home</a><a className="active" href="/links">↗ My Links</a><a href="/analytics">◉ Analytics</a>
-          </nav>
+          <nav><a href="/">⌂ Home</a><a className="active" href="/links">↗ My Links</a><a href="/analytics">◉ Analytics</a></nav>
         </header>
 
         <section className="title">
           <p>LINK LIBRARY</p><h1>My Links</h1>
-          <span>Every short link created from this browser is kept here.</span>
+          <span>Saved securely in your canvalives account — independent of browser history.</span>
           <b>{links.length} links</b>
         </section>
 
-        {!links.length ? <div className="empty">No links yet. <a href="/">Create your first short link →</a></div> :
-        <div className="list">{links.map(link => (
+        {loading ? <div className="empty">Loading saved links...</div> :
+        !links.length ? <div className="empty">No links yet. <a href="/">Create your first short link →</a></div> :
+        <div className="list">{links.map(link=>(
           <article className="row" key={link.slug}>
             <div className="main">
               <a className="short" href={link.shortUrl}>{link.shortUrl}</a>
               <div className="dest">{link.destinationUrl}</div>
-              <small>{new Date(link.createdAt).toLocaleString()}</small>
+              <small>{new Date(link.createdAt).toLocaleString()} · {link.clicks} clicks</small>
             </div>
             <div className="actions">
-              <button onClick={() => copy(link.shortUrl)}>Copy</button>
-              <a href={"/analytics/" + link.slug}>Analytics</a>
-              <button className="delete" onClick={() => remove(link.slug)}>Delete</button>
+              <button onClick={()=>copy(link.shortUrl)}>Copy</button>
+              <a href={"/analytics/"+link.slug}>Analytics</a>
+              <button className="delete" onClick={()=>remove(link.slug)}>Delete</button>
             </div>
           </article>
         ))}</div>}
