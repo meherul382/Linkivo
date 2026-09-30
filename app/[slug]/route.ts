@@ -59,5 +59,13 @@ export async function GET(
 
   if (eventError) console.error("Analytics error:", eventError);
 
-  return NextResponse.redirect(row.destination_url, { status: 307 });
+  try {
+    const destination = new URL(row.destination_url);
+    if (!["http:", "https:"].includes(destination.protocol)) {
+      return NextResponse.json({ error: "Invalid destination URL." }, { status: 400 });
+    }
+    return NextResponse.redirect(destination, { status: 302 });
+  } catch {
+    return NextResponse.json({ error: "Invalid destination URL." }, { status: 400 });
+  }
 }
