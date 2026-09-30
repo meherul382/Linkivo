@@ -19,7 +19,7 @@ export default function Home() {
 
   useEffect(() => {
     try {
-      const saved = JSON.parse(localStorage.getItem("linkivo_my_links") || "[]");
+      const saved = JSON.parse(localStorage.getItem("canvalives_my_links") || "[]");
       if (Array.isArray(saved)) setMyLinks(saved);
     } catch {
       setMyLinks([]);
@@ -29,7 +29,7 @@ export default function Home() {
   function saveLink(link: SavedLink) {
     const next = [link, ...myLinks.filter(item => item.slug !== link.slug)];
     setMyLinks(next);
-    localStorage.setItem("linkivo_my_links", JSON.stringify(next));
+    localStorage.setItem("canvalives_my_links", JSON.stringify(next));
   }
 
   function removeLink(slug: string) {
@@ -83,7 +83,7 @@ export default function Home() {
   return <main className="page">
     <section className="hero container">
       <div className="nav">
-        <div className="brand"><span className="logo">L</span><span>Linkivo</span></div>
+        <div className="brand"><span className="logo">C</span><span>CanvaLives</span></div>
         <span className="badge">Personal URL Shortener</span>
       </div>
 
@@ -111,7 +111,7 @@ export default function Home() {
             </label>
 
             <label>Custom alias <em>optional</em>
-              <div className="alias"><span>linkivo-nu.vercel.app/</span><input value={alias} onChange={e=>setAlias(e.target.value)} placeholder="my-link" /></div>
+              <div className="alias"><span>CanvaLives /</span><input value={alias} onChange={e=>setAlias(e.target.value)} placeholder="my-link" /></div>
             </label>
 
             <button className="primary" type="submit" disabled={loading}>
