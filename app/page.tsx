@@ -35,7 +35,7 @@ export default function Home() {
   function removeLink(slug: string) {
     const next = myLinks.filter(item => item.slug !== slug);
     setMyLinks(next);
-    localStorage.setItem("linkivo_my_links", JSON.stringify(next));
+    localStorage.setItem("canvalives_my_links", JSON.stringify(next));
   }
 
   async function copyLink(shortUrl: string) {
@@ -84,6 +84,11 @@ export default function Home() {
     <section className="hero container">
       <div className="nav">
         <div className="brand"><span className="logo">C</span><span>canvalives</span></div>
+        <div className="top-nav">
+          <a className="nav-card active" href="/">⌂ <span>Home</span></a>
+          <a className="nav-card" href="/links">↗ <span>My Links</span></a>
+          <a className="nav-card" href="/analytics">◉ <span>Analytics</span></a>
+        </div>
         <span className="badge">Personal URL Shortener</span>
       </div>
 
@@ -176,7 +181,7 @@ export default function Home() {
     <style jsx>{`
       .page{min-height:100vh;background:radial-gradient(circle at 80% 10%,rgba(80,112,255,.18),transparent 32%),radial-gradient(circle at 10% 30%,rgba(0,219,255,.09),transparent 25%),#07111f}
       .hero{padding:28px 0 70px}.nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:80px}
-      .brand{display:flex;align-items:center;gap:10px;font-size:20px;font-weight:800}.logo{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#7c5cff,#1fd6ff);box-shadow:0 10px 30px rgba(76,108,255,.25)}
+      .brand{display:flex;align-items:center;gap:10px;font-size:20px;font-weight:800}.top-nav{display:flex;align-items:center;gap:8px;margin-left:auto;margin-right:18px}.nav-card{display:flex;align-items:center;gap:7px;padding:9px 13px;border:1px solid rgba(255,255,255,.09);border-radius:12px;color:#9fb0c7;text-decoration:none;font-size:12px;background:rgba(255,255,255,.025);transition:.2s}.nav-card:hover,.nav-card.active{color:#fff;border-color:rgba(57,217,255,.35);background:rgba(57,217,255,.08)}.nav-card span{font-weight:600}.logo{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#7c5cff,#1fd6ff);box-shadow:0 10px 30px rgba(76,108,255,.25)}
       .badge{padding:8px 12px;border:1px solid rgba(255,255,255,.12);border-radius:999px;color:#aebdd2;font-size:12px}
       .hero-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:70px;align-items:center}.eyebrow{letter-spacing:.18em;color:#75cfff;font-size:11px;font-weight:700}
       h1{font-size:clamp(48px,7vw,82px);line-height:.98;margin:18px 0}.lead{max-width:600px;color:#9fb0c7;font-size:18px;line-height:1.7}.hero h1 span{background:linear-gradient(90deg,#8e6cff,#39d9ff);-webkit-background-clip:text;background-clip:text;color:transparent}
@@ -189,7 +194,7 @@ export default function Home() {
       .error{margin-top:16px;padding:12px 14px;border-radius:12px;background:#3a1821;border:1px solid #703043;color:#ffb5c2;font-size:13px}
       .result{margin-top:18px;padding:14px;border-radius:14px;background:#0c2237;border:1px solid rgba(57,217,255,.2)}.result small{color:#7f95ad}.result div{display:flex;gap:10px;align-items:center;margin-top:7px}.result strong{font-size:13px;word-break:break-all;flex:1}.result button{border:0;background:#1a3550;color:#fff;padding:8px 11px;border-radius:9px;cursor:pointer}.analytics{display:inline-block;margin-top:12px;color:#6ee2ff;font-size:12px}
       .my-links{padding:10px 0 70px}.my-links-head{display:flex;align-items:end;justify-content:space-between;margin-bottom:18px}.my-links-head h2{font-size:32px;margin:6px 0}.my-links-head>div>p:last-child{color:#8194ab;margin:0}.count{padding:8px 12px;border:1px solid rgba(255,255,255,.1);border-radius:999px;color:#8ea2ba;font-size:12px}.empty-links{padding:38px;text-align:center;border:1px solid rgba(255,255,255,.09);border-radius:20px;background:rgba(255,255,255,.025);display:flex;flex-direction:column;align-items:center;gap:8px}.empty-icon{width:44px;height:44px;display:grid;place-items:center;border-radius:14px;background:rgba(57,217,255,.1);color:#6ee2ff;font-size:20px}.empty-links span{color:#71849b;font-size:13px}.links-list{display:grid;gap:12px}.link-row{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:18px 20px;border:1px solid rgba(255,255,255,.09);border-radius:18px;background:rgba(10,24,43,.68)}.link-main{min-width:0}.short-link{color:#6ee2ff;font-weight:800;text-decoration:none;font-size:14px}.destination{color:#a1b1c5;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:650px;margin-top:6px}.link-main small{display:block;color:#61758e;font-size:11px;margin-top:7px}.link-actions{display:flex;gap:8px;flex-shrink:0}.link-actions button,.link-actions a{border:1px solid #263d58;background:#122941;color:#dce8f5;padding:8px 11px;border-radius:9px;font-size:12px;text-decoration:none;cursor:pointer}.link-actions .danger{color:#ff9faf;border-color:#4a2732;background:#281722}.features{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;padding-bottom:70px}.features>div{padding:24px;border:1px solid rgba(255,255,255,.09);border-radius:20px;background:rgba(255,255,255,.025)}.features span{color:#5edcff;font-size:12px}.features h3{margin:12px 0 7px}.features p{color:#8194ab;line-height:1.6;font-size:14px}
-      @media(max-width:820px){.hero-grid,.features{grid-template-columns:1fr}.nav{margin-bottom:55px}.stats{gap:18px;flex-wrap:wrap}.my-links-head{align-items:flex-start;gap:15px}.link-row{align-items:flex-start;flex-direction:column}.link-actions{width:100%;flex-wrap:wrap}.link-actions button,.link-actions a{flex:1;text-align:center}.destination{max-width:100%}}
+      @media(max-width:820px){.hero-grid,.features{grid-template-columns:1fr}.nav{margin-bottom:55px;flex-wrap:wrap;gap:14px}.top-nav{order:3;width:100%;margin:0}.nav-card{flex:1;justify-content:center}.stats{gap:18px;flex-wrap:wrap}.my-links-head{align-items:flex-start;gap:15px}.link-row{align-items:flex-start;flex-direction:column}.link-actions{width:100%;flex-wrap:wrap}.link-actions button,.link-actions a{flex:1;text-align:center}.destination{max-width:100%}}
     `}
     </style>
   </main>;
