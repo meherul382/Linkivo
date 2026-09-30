@@ -34,10 +34,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Could not create the short link." }, { status: 500 });
     }
 
+    const productionHost = process.env.VERCEL_PROJECT_PRODUCTION_URL;
+    const appOrigin = productionHost
+      ? `https://${productionHost}`
+      : (process.env.NEXT_PUBLIC_APP_URL || request.nextUrl.origin).replace(/\/$/, "");
+
     return NextResponse.json({
       slug: data.slug,
       destinationUrl: data.destination_url,
-      shortUrl: `${request.nextUrl.origin}/${data.slug}`,
+      shortUrl: `${appOrigin}/${data.slug}`,
     });
   } catch (error) {
     console.error(error);
