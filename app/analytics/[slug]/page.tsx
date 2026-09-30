@@ -27,7 +27,7 @@ export default async function AnalyticsPage(
         <a href="/" style={{color:"#7ddcff",textDecoration:"none"}}>← canvalives</a>
         <h1 style={{fontSize:42,margin:"28px 0 8px"}}>Link Analytics</h1>
         <p style={{color:"#8fa3bc",wordBreak:"break-all"}}>{link.destination_url}</p>
-        <div style={{fontSize:12,color:"#60758e"}}>Short link: canvalives.com/{link.slug}</div>
+        <div style={{fontSize:12,color:"#60758e"}}>Short link: {(link.short_domain||"canvalives.com")}/{link.slug}</div>
 
         <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:14,margin:"28px 0"}}>
           {[["Total clicks",String(link.clicks)],["Today",String(data.todayClicks)],["Tracked events",String(data.trackedEvents)]].map(([label,value])=>(
