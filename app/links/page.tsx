@@ -93,7 +93,7 @@ export default function MyLinksPage() {
           </div>
         </div>}
 
-        <style jsx>{
+        <style jsx>{`
           .page{min-height:100vh;background:#07111f;color:#f7fbff;font-family:Inter,system-ui,sans-serif}.container{max-width:1120px;margin:auto;padding:0 20px}
           .header{height:86px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.08)}.brand{display:flex;align-items:center;gap:10px;color:#fff;text-decoration:none;font-size:20px;font-weight:800}.logo{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,#7c5cff,#1fd6ff)}
           nav{display:flex;gap:8px}nav a{padding:10px 14px;border-radius:12px;color:#93a6bd;text-decoration:none;font-size:13px}nav a:hover,nav .active{background:rgba(57,217,255,.08);color:#fff}
