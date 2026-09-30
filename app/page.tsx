@@ -70,7 +70,7 @@ export default function Home() {
             </label>
 
             <label>Custom alias <em>optional</em>
-              <div className="alias"><span>current-site/</span><input value={alias} onChange={e=>setAlias(e.target.value)} placeholder="my-link" /></div>
+              <div className="alias"><span>linkivo-nu.vercel.app/</span><input value={alias} onChange={e=>setAlias(e.target.value)} placeholder="my-link" /></div>
             </label>
 
             <button className="primary" type="submit" disabled={loading}>
