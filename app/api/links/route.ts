@@ -36,23 +36,9 @@ export async function POST(request: NextRequest) {
 
     const appOrigin = (process.env.NEXT_PUBLIC_APP_URL || "https://linkivo-nu.vercel.app").replace(/\/$/, "");
 
-    // Verify the same slug can be resolved immediately before returning it.
-    const { data: resolved, error: resolveError } = await supabase.rpc("linkivo_resolve_link", {
-      p_slug: data.slug,
-    });
-    const resolvedRow = Array.isArray(resolved) ? resolved[0] : resolved;
-
-    if (resolveError || !resolvedRow?.destination_url || !resolvedRow.is_active) {
-      console.error("Link verification failed:", resolveError);
-      return NextResponse.json(
-        { error: "The link was created but could not be verified. Please try again." },
-        { status: 500 }
-      );
-    }
-
     return NextResponse.json({
       slug: data.slug,
-      destinationUrl: resolvedRow.destination_url,
+      destinationUrl: data.destination_url,
       shortUrl: `${appOrigin}/${data.slug}`,
     });
   } catch (error) {
