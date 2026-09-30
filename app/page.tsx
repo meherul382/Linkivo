@@ -48,7 +48,7 @@ export default function Home() {
       if(!r.ok){setError(d.error||"Could not create the short link.");return;}
       setCreated(d.shortUrl);
       setMyLinks(prev=>[{slug:d.slug,shortUrl:d.shortUrl,destinationUrl:d.destinationUrl,createdAt:d.createdAt||new Date().toISOString(),clicks:0},...prev.filter(x=>x.slug!==d.slug)]);
-      setUrl("");setAlias("");
+      setAlias("");
     }catch{setError("Network error. Please try again.");}
     finally{setLoading(false);}
   }
