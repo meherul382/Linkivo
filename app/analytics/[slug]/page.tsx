@@ -23,7 +23,7 @@ export default async function AnalyticsPage(
   return (
     <main style={{minHeight:"100vh",background:"#07111f",color:"#f7fbff",padding:"32px 16px",fontFamily:"Inter,system-ui,sans-serif"}}>
       <div style={{maxWidth:1050,margin:"0 auto"}}>
-        <a href="/" style={{color:"#7ddcff",textDecoration:"none"}}>← Linkivo</a>
+        <a href="/" style={{color:"#7ddcff",textDecoration:"none"}}>← canvalives</a>
         <h1 style={{fontSize:42,margin:"28px 0 8px"}}>Link Analytics</h1>
         <p style={{color:"#8fa3bc",wordBreak:"break-all"}}>{link.destination_url}</p>
 
