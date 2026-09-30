@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-type LinkRow={slug:string;shortUrl:string;destinationUrl:string;clicks:number};
+type LinkRow={slug:string;shortUrl:string;destinationUrl:string;clicks:number;domain?:string};
 type Analytics={slug:string;shortUrl:string;destinationUrl:string;clicks:number;today:number};
 
 export default function AnalyticsOverview(){
