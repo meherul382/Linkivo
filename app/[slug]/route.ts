@@ -162,3 +162,4 @@ export async function GET(
   } catch {
     return NextResponse.json({ error: "Invalid destination URL." }, { status: 400 });
   }
+}
