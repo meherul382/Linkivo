@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { createHash } from "node:crypto";
 import { getSupabaseAdmin } from "../../lib/supabase/admin";
 
+export const dynamic = "force-dynamic";
+
 function parseDevice(userAgent: string) {
   if (/bot|crawler|spider|slurp|facebookexternalhit|preview/i.test(userAgent)) return "bot";
   if (/ipad|tablet|playbook|silk/i.test(userAgent)) return "tablet";
@@ -39,7 +41,10 @@ export async function GET(
   const row = Array.isArray(link) ? link[0] : link;
 
   if (error || !row?.destination_url || !row.is_active) {
-    return NextResponse.json({ error: "Short link not found." }, { status: 404 });
+    return NextResponse.json(
+      { error: "Short link not found." },
+      { status: 404, headers: { "Cache-Control": "no-store" } }
+    );
   }
 
   const userAgent = request.headers.get("user-agent") || "";
@@ -64,7 +69,10 @@ export async function GET(
     if (!["http:", "https:"].includes(destination.protocol)) {
       return NextResponse.json({ error: "Invalid destination URL." }, { status: 400 });
     }
-    return NextResponse.redirect(destination, { status: 302 });
+    return NextResponse.redirect(destination, {
+      status: 302,
+      headers: { "Cache-Control": "no-store" },
+    });
   } catch {
     return NextResponse.json({ error: "Invalid destination URL." }, { status: 400 });
   }
