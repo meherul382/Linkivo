@@ -29,8 +29,22 @@ create index if not exists links_slug_idx on public.links(slug);
 create index if not exists click_events_link_id_idx on public.click_events(link_id);
 create index if not exists click_events_clicked_at_idx on public.click_events(clicked_at desc);
 
+create or replace function public.increment_link_clicks(p_link_id uuid)
+returns void
+language sql
+security definer
+set search_path = public
+as $$
+  update public.links
+  set clicks = clicks + 1, updated_at = now()
+  where id = p_link_id;
+$$;
+
+revoke all on function public.increment_link_clicks(uuid) from public, anon, authenticated;
+grant execute on function public.increment_link_clicks(uuid) to service_role;
+
 alter table public.links enable row level security;
 alter table public.click_events enable row level security;
 
--- Server-side/service-role operations can manage these tables.
--- Public anonymous reads/writes remain blocked until explicit policies are added.
+-- Linkivo uses the server-only Supabase secret key for database operations.
+-- No anonymous table policies are created.
