@@ -74,7 +74,7 @@ export default function MyLinksPage() {
             <div className="actions">
               <button onClick={()=>copy(link.shortUrl)}>Copy</button>
               <a href={"/analytics/"+link.slug}>Analytics</a>
-              <button className="edit" onClick={()=>openEdit(link)}>Edit</button>
+              <button type="button" className="edit" onClick={()=>openEdit(link)}>✎ Edit</button>
               <button className="delete" onClick={()=>remove(link.slug)}>Delete</button>
             </div>
           </article>
