@@ -1,61 +1,9 @@
 import { notFound } from "next/navigation";
 import { getSupabaseServer } from "../../../lib/supabase/server";
-
-export const dynamic = "force-dynamic";
-
-export default async function AnalyticsPage(
-  props: { params: Promise<{ slug: string }> }
-) {
-  const { slug } = await props.params;
-  const supabase = await getSupabaseServer();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) notFound();
-
-  const { data, error } = await supabase.rpc("linkivo_get_analytics", { p_slug: slug });
-  if (error || !data) notFound();
-
-  const link = data.link;
-  const countries = data.countries || [];
-  const devices = data.devices || [];
-  const browsers = data.browsers || [];
-  const recent = data.recent || [];
-  const card = {background:"#0c1d31",border:"1px solid #203650",borderRadius:18,padding:20};
-
-  return (
-    <main style={{minHeight:"100vh",background:"#07111f",color:"#f7fbff",padding:"32px 16px",fontFamily:"Inter,system-ui,sans-serif"}}>
-      <div style={{maxWidth:1050,margin:"0 auto"}}>
-        <a href="/" style={{color:"#7ddcff",textDecoration:"none"}}>← canvalives</a>
-        <h1 style={{fontSize:42,margin:"28px 0 8px"}}>Link Analytics</h1>
-        <p style={{color:"#8fa3bc",wordBreak:"break-all"}}>{link.destination_url}</p>
-        <div style={{fontSize:12,color:"#60758e"}}>Short link: {(link.short_domain||"canvalives.com")}/{link.slug}</div>
-
-        <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:14,margin:"28px 0"}}>
-          {[["Total clicks",String(link.clicks)],["Today",String(data.todayClicks)],["Tracked events",String(data.trackedEvents)]].map(([label,value])=>(
-            <div key={label} style={card}><div style={{color:"#7f95ad",fontSize:13}}>{label}</div><strong style={{fontSize:30,display:"block",marginTop:8}}>{value}</strong></div>
-          ))}
-        </div>
-
-        <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:14}}>
-          {[["Countries",countries],["Devices",devices],["Browsers",browsers]].map(([title,items])=>(
-            <section key={String(title)} style={card}>
-              <h2 style={{marginTop:0,fontSize:18}}>{title}</h2>
-              {Array.isArray(items)&&items.length?items.slice(0,8).map((item:[string,number])=>(
-                <div key={item[0]} style={{display:"flex",justifyContent:"space-between",padding:"9px 0",borderBottom:"1px solid #172b43"}}><span>{item[0]}</span><strong>{item[1]}</strong></div>
-              )):<p style={{color:"#71859e"}}>No clicks yet.</p>}
-            </section>
-          ))}
-        </div>
-
-        <section style={{...card,marginTop:14}}>
-          <h2 style={{fontSize:18}}>Recent clicks</h2>
-          {recent.map((event:any,index:number)=>(
-            <div key={index} style={{display:"grid",gridTemplateColumns:"1.2fr .8fr .8fr .8fr",gap:10,padding:"10px 0",borderBottom:"1px solid #172b43",fontSize:13}}>
-              <span>{new Date(event.clicked_at).toLocaleString("en-GB",{timeZone:"Asia/Dhaka"})}</span><span>{event.country||"Unknown"}</span><span>{event.device_type||"Unknown"}</span><span>{event.browser||"Unknown"}</span>
-            </div>
-          ))}
-          {!recent.length&&<p style={{color:"#71859e"}}>No clicks yet.</p>}
-        </section>
-      </div>
-    </main>
-  );
+export const dynamic="force-dynamic";
+export default async function AnalyticsDetail(props:{params:Promise<{slug:string}>}){
+ const {slug}=await props.params;const supabase=await getSupabaseServer();const {data:{user}}=await supabase.auth.getUser();if(!user)notFound();
+ const {data,error}=await supabase.rpc("linkivo_get_analytics",{p_slug:slug});if(error||!data)notFound();
+ const link=data.link;const sections:[string,any[]][]=[["Countries",data.countries||[]],["Devices",data.devices||[]],["Browsers",data.browsers||[]]];
+ return <main style={{minHeight:"100vh",background:"#080e1a",color:"#f5f7ff",padding:"30px 16px",fontFamily:"Inter,system-ui,sans-serif"}}><div style={{maxWidth:1000,margin:"auto"}}><a href="/analytics" style={{color:"#67e8f9"}}>← Analytics</a><p style={{color:"#70dce9",letterSpacing:".15em",fontSize:10,fontWeight:800,marginTop:35}}>LINK PERFORMANCE</p><h1>Click details</h1><p style={{color:"#97a6ba",overflowWrap:"anywhere"}}>{link.destination_url}</p><p style={{color:"#67e8f9"}}>{process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/,"")}/{slug}</p><div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(160px,1fr))",gap:12,margin:"26px 0"}}>{[["Total clicks",link.clicks],["Today",data.todayClicks],["Events tracked",data.trackedEvents]].map(([n,v])=><section key={String(n)} style={{padding:20,border:"1px solid #25344a",borderRadius:15,background:"#101b2b"}}><small style={{color:"#8393a9"}}>{n}</small><h2 style={{fontSize:30,margin:"10px 0 0"}}>{v}</h2></section>)}</div><div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(220px,1fr))",gap:12}}>{sections.map(([title,items])=><section key={title} style={{padding:20,border:"1px solid #25344a",borderRadius:15,background:"#101b2b"}}><h2 style={{fontSize:16,marginTop:0}}>{title}</h2>{items.length?items.map((i:any,index:number)=><div key={index} style={{display:"flex",justifyContent:"space-between",padding:"10px 0",borderBottom:"1px solid #1d293b",fontSize:12}}><span>{i[0]||"Unknown"}</span><b>{i[1]}</b></div>):<p style={{color:"#718096",fontSize:12}}>No data yet.</p>}</section>)}</div><section style={{padding:20,border:"1px solid #25344a",borderRadius:15,background:"#101b2b",marginTop:12}}><h2 style={{fontSize:16}}>Recent visits</h2>{(data.recent||[]).length?(data.recent||[]).map((e:any,i:number)=><div key={i} style={{display:"grid",gridTemplateColumns:"1.2fr .7fr .7fr .7fr",gap:10,padding:"10px 0",borderBottom:"1px solid #1d293b",fontSize:12}}><span>{new Date(e.clicked_at).toLocaleString("en-GB",{timeZone:"Asia/Dhaka"})}</span><span>{e.country||"Unknown"}</span><span>{e.device_type||"Unknown"}</span><span>{e.browser||"Unknown"}</span></div>):<p style={{color:"#718096",fontSize:12}}>No tracked clicks yet.</p>}</section></div></main>;
 }
