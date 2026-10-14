@@ -1,4 +1,3 @@
-"use server";
 import { NextRequest, NextResponse } from "next/server";
 import { createHash } from "node:crypto";
 import { getSupabaseAdmin } from "../../lib/supabase/admin";
