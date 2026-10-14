@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getSupabaseBrowser } from "../lib/supabase/browser";
 
 type SavedLink = { slug:string; shortUrl:string; destinationUrl:string; createdAt:string; clicks:number };
 
@@ -20,7 +19,7 @@ export default function Home() {
     catch {}
   }
   useEffect(()=>{loadLinks();},[]);
-  async function logout(){ await getSupabaseBrowser().auth.signOut(); window.location.href="/login"; }
+  async function logout(){ await fetch("/api/session/logout",{method:"POST"}); window.location.href="/login"; }
   async function copy(value:string){
     try { await navigator.clipboard.writeText(value); setCopied(value); window.setTimeout(()=>setCopied(""),1600); } catch {}
   }
