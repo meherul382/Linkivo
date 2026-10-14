@@ -1,114 +1,15 @@
 "use client";
-
 import { useEffect, useState } from "react";
-
-type SavedLink={slug:string;shortUrl:string;destinationUrl:string;createdAt:string;clicks:number;domain?:string};
-
-export default function MyLinksPage() {
-  const [links,setLinks]=useState<SavedLink[]>([]);
-  const [loading,setLoading]=useState(true);
-  const [editing,setEditing]=useState<SavedLink|null>(null);
-  const [editUrl,setEditUrl]=useState("");
-  const [editError,setEditError]=useState("");
-  const [saving,setSaving]=useState(false);
-  const [copied,setCopied]=useState("");
-
-  async function load(){
-    try{
-      const r=await fetch("/api/links",{cache:"no-store"});
-      const d=await r.json();
-      if(r.ok && Array.isArray(d.links)) setLinks(d.links);
-    }finally{setLoading(false);}
-  }
-
-  useEffect(()=>{load();},[]);
-
-  async function copy(url:string){
-    try{
-      await navigator.clipboard.writeText(url);
-      setCopied(url);
-      window.setTimeout(()=>setCopied(""),1800);
-    }catch{}
-  }
-
-  function openEdit(link:SavedLink){setEditing(link);setEditUrl(link.destinationUrl);setEditError("");}
-
-  async function saveEdit(e:React.FormEvent){
-    e.preventDefault();
-    if(!editing)return;
-    setEditError("");setSaving(true);
-    try{
-      const r=await fetch("/api/links/"+encodeURIComponent(editing.slug),{
-        method:"PUT",headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({destinationUrl:editUrl})
-      });
-      const d=await r.json();
-      if(!r.ok){setEditError(d.error||"Could not update the destination URL.");return;}
-      setLinks(prev=>prev.map(x=>x.slug===editing.slug?{...x,destinationUrl:d.destinationUrl}:x));
-      setEditing(null);
-    }catch{setEditError("Network error. Please try again.");}
-    finally{setSaving(false);}
-  }
-
-  async function remove(slug:string){
-    const r=await fetch("/api/links/"+encodeURIComponent(slug),{method:"DELETE"});
-    if(r.ok) setLinks(prev=>prev.filter(x=>x.slug!==slug));
-  }
-
-  return (
-    <main className="page">
-      <div className="container">
-        <header className="header">
-          <a className="brand" href="/"><span className="logo">C</span><span>canvalives</span></a>
-          <nav><a href="/">⌂ Home</a><a className="active" href="/links">↗ My Links</a><a href="/analytics">◉ Analytics</a></nav>
-        </header>
-
-        <section className="title">
-          <p>LINK LIBRARY</p><h1>My Links</h1>
-          <span>Saved securely in your canvalives account — independent of browser history.</span>
-          <b>{links.length} links</b>
-        </section>
-
-        {loading ? <div className="empty">Loading saved links...</div> :
-        !links.length ? <div className="empty">No links yet. <a href="/">Create your first short link →</a></div> :
-        <div className="list">{links.map(link=>(
-          <article className="row" key={link.slug}>
-            <div className="main">
-              <a className="short" href={link.shortUrl}>{link.shortUrl}</a>
-              <div className="dest">{link.destinationUrl}</div>
-              <small>{new Date(link.createdAt).toLocaleString()} · {link.clicks} clicks</small>
-            </div>
-            <div className="actions">
-              <button type="button" className={copied===link.shortUrl?"copied":""} onClick={()=>copy(link.shortUrl)}>{copied===link.shortUrl?"✓ Copied!":"Copy"}</button>
-              <a href={"/analytics/"+link.slug}>Analytics</a>
-              <button type="button" className="edit" onClick={()=>openEdit(link)}>✎ Edit</button>
-              <button className="delete" onClick={()=>remove(link.slug)}>Delete</button>
-            </div>
-          </article>
-        ))}</div>}
-
-        {editing && <div className="overlay" onClick={()=>!saving&&setEditing(null)}>
-          <div className="modal" onClick={e=>e.stopPropagation()}>
-            <div className="modal-top"><div><p>EDIT SHORT LINK</p><h2>Change destination</h2></div><button className="close" type="button" onClick={()=>setEditing(null)} disabled={saving}>×</button></div>
-            <div className="fixed-link">{editing.shortUrl}</div>
-            <p className="hint">Short link stays exactly the same. Only the destination website will change.</p>
-            <form onSubmit={saveEdit}>
-              <label>New destination URL<input value={editUrl} onChange={e=>setEditUrl(e.target.value)} placeholder="https://example.com/new-page" required /></label>
-              {editError&&<div className="error">{editError}</div>}
-              <div className="modal-actions"><button type="button" className="cancel" onClick={()=>setEditing(null)} disabled={saving}>Cancel</button><button type="submit" className="save" disabled={saving}>{saving?"Saving...":"Save Changes →"}</button></div>
-            </form>
-          </div>
-        </div>}
-
-        <style jsx>{`
-          .page{min-height:100vh;background:#07111f;color:#f7fbff;font-family:Inter,system-ui,sans-serif}.container{max-width:1120px;margin:auto;padding:0 20px}
-          .header{height:86px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.08)}.brand{display:flex;align-items:center;gap:10px;color:#fff;text-decoration:none;font-size:20px;font-weight:800}.logo{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,#7c5cff,#1fd6ff)}
-          nav{display:flex;gap:8px}nav a{padding:10px 14px;border-radius:12px;color:#93a6bd;text-decoration:none;font-size:13px}nav a:hover,nav .active{background:rgba(57,217,255,.08);color:#fff}
-          .title{padding:55px 0 25px;position:relative}.title p{color:#75cfff;letter-spacing:.18em;font-size:11px;font-weight:700}.title h1{font-size:48px;margin:10px 0}.title span{color:#8194ab}.title b{position:absolute;right:0;bottom:28px;padding:9px 13px;border:1px solid #263b55;border-radius:999px;color:#9eb0c5;font-size:12px}
-          .list{display:grid;gap:12px;padding-bottom:70px}.row{display:flex;justify-content:space-between;gap:20px;padding:20px;border:1px solid #203650;border-radius:18px;background:#0c1d31}.short{color:#6ee2ff;font-weight:800;text-decoration:none}.dest{color:#a1b1c5;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:700px;margin:8px 0}.main small{color:#61758e;font-size:11px}.actions{display:flex;gap:8px;align-items:center}.actions button,.actions a{padding:9px 12px;border:1px solid #29415e;border-radius:10px;background:#122941;color:#dce8f5;text-decoration:none;font-size:12px;cursor:pointer}.actions .copied{color:#79ffd9;border-color:#28665a;background:#123a36}.actions .edit{color:#8fe8ff;border-color:#24516a;background:#102c40}.actions .delete{color:#ff9faf;background:#281722;border-color:#4a2732}.overlay{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:20px;background:rgba(2,8,16,.72);backdrop-filter:blur(8px)}.modal{width:min(520px,100%);padding:26px;border:1px solid rgba(255,255,255,.13);border-radius:22px;background:#0b1b2e;box-shadow:0 35px 100px rgba(0,0,0,.5)}.modal-top{display:flex;justify-content:space-between;align-items:flex-start}.modal-top p{margin:0;color:#75cfff;font-size:10px;letter-spacing:.18em;font-weight:800}.modal h2{margin:8px 0 0;font-size:24px}.close{width:34px;height:34px;border:1px solid #29415e;border-radius:10px;background:#122941;color:#b8c7d8;font-size:22px;cursor:pointer}.fixed-link{margin-top:22px;padding:12px 14px;border-radius:11px;background:#091728;border:1px solid #203650;color:#6ee2ff;font-weight:800;word-break:break-all}.hint{color:#7e91a9;font-size:12px;line-height:1.6}.modal label{display:block;color:#dce8f5;font-size:13px;margin-top:18px}.modal input{box-sizing:border-box;width:100%;margin-top:8px;padding:14px;border:1px solid #29415e;border-radius:12px;background:#091728;color:#fff;outline:none}.modal-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:18px}.cancel,.save{padding:11px 15px;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer}.cancel{border:1px solid #29415e;background:#122941;color:#cbd8e6}.save{border:0;background:linear-gradient(90deg,#7658ff,#18cfff);color:#fff}.error{margin-top:12px;padding:10px 12px;border:1px solid #703043;background:#3a1821;border-radius:10px;color:#ffb5c2;font-size:12px}.empty{padding:50px;text-align:center;border:1px solid #203650;border-radius:18px;color:#8093aa}.empty a{color:#6ee2ff;text-decoration:none}
-          @media(max-width:700px){.header{height:auto;padding:18px 0;gap:15px;flex-direction:column;align-items:stretch}nav{width:100%}nav a{flex:1;text-align:center}.row{flex-direction:column}.actions{width:100%;flex-wrap:wrap}.actions button,.actions a{flex:1;text-align:center}.dest{max-width:100%}.title h1{font-size:38px}.title b{position:static;display:inline-block;margin-top:18px}}
-        `}</style>
-      </div>
-    </main>
-  );
+type LinkRow={slug:string;shortUrl:string;destinationUrl:string;createdAt:string;clicks:number};
+export default function LinksPage(){
+ const [links,setLinks]=useState<LinkRow[]>([]);const [loading,setLoading]=useState(true);const [editing,setEditing]=useState<LinkRow|null>(null);const [url,setUrl]=useState("");const [error,setError]=useState("");const [saving,setSaving]=useState(false);const [copied,setCopied]=useState("");
+ async function load(){try{const r=await fetch("/api/links",{cache:"no-store"});const d=await r.json();if(r.ok)setLinks(d.links||[]);}finally{setLoading(false);}}
+ useEffect(()=>{load();},[]);
+ async function copy(x:string){try{await navigator.clipboard.writeText(x);setCopied(x);window.setTimeout(()=>setCopied(""),1500);}catch{}}
+ async function save(e:React.FormEvent){e.preventDefault();if(!editing)return;setSaving(true);setError("");try{const r=await fetch("/api/links/"+encodeURIComponent(editing.slug),{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({destinationUrl:url})});const d=await r.json();if(!r.ok){setError(d.error||"Update failed.");return;}setLinks(v=>v.map(x=>x.slug===editing.slug?{...x,destinationUrl:d.destinationUrl}:x));setEditing(null);}catch{setError("Network error.");}finally{setSaving(false);}}
+ async function archive(slug:string){if(!window.confirm("Archive this link?"))return;const r=await fetch("/api/links/"+encodeURIComponent(slug),{method:"DELETE"});if(r.ok)setLinks(v=>v.filter(x=>x.slug!==slug));}
+ return <main className="page"><div className="container"><header><a className="brand" href="/"><b>L</b> Linkivo</a><nav><a href="/">Overview</a><a className="active" href="/links">My Links</a><a href="/analytics">Analytics</a></nav></header><section className="head"><span>YOUR LIBRARY</span><h1>My links</h1><p>Manage destinations while keeping each short URL unchanged.</p><strong>{links.length} links</strong></section>
+ {loading?<div className="empty">Loading your links…</div>:!links.length?<div className="empty">No links yet. <a href="/">Create your first link →</a></div>:<div className="list">{links.map(l=><article className="row" key={l.slug}><div className="ico">↗</div><div className="info"><a href={l.shortUrl} className="short">{l.shortUrl}</a><p>{l.destinationUrl}</p><small>{new Date(l.createdAt).toLocaleString()} · {l.clicks} clicks</small></div><div className="actions"><button onClick={()=>copy(l.shortUrl)}>{copied===l.shortUrl?"Copied ✓":"Copy"}</button><a href={"/analytics/"+l.slug}>Stats</a><button onClick={()=>{setEditing(l);setUrl(l.destinationUrl);setError("");}}>Edit</button><button className="danger" onClick={()=>archive(l.slug)}>Archive</button></div></article>)}</div>}
+ {editing&&<div className="overlay"><section className="modal"><button className="x" onClick={()=>setEditing(null)}>×</button><span>EDIT DESTINATION</span><h2>Update destination</h2><div className="fixed">{editing.shortUrl}</div><p>Your short URL stays the same.</p><form onSubmit={save}><label>Destination URL<input type="url" required value={url} onChange={e=>setUrl(e.target.value)}/></label>{error&&<div className="error">{error}</div>}<div className="end"><button type="button" className="secondary" onClick={()=>setEditing(null)}>Cancel</button><button disabled={saving}>{saving?"Saving…":"Save changes →"}</button></div></form></section></div>}
+ <style jsx>{`.page{min-height:100vh;background:#080e1a;color:#f5f7ff}.container{width:min(1100px,calc(100% - 32px));margin:auto}header{height:84px;border-bottom:1px solid #1d293b;display:flex;align-items:center;justify-content:space-between}.brand{font-size:19px;font-weight:800}.brand b{display:inline-grid;place-items:center;width:35px;height:35px;border-radius:11px;background:linear-gradient(135deg,#8b5cf6,#06b6d4);margin-right:8px}nav{display:flex;gap:5px}nav a{padding:10px 13px;color:#8190a7;border-radius:9px;font-size:12px}nav .active,nav a:hover{background:#172337;color:white}.head{padding:48px 0 25px;position:relative}.head>span,.modal>span{font-size:10px;letter-spacing:.17em;color:#70dce9;font-weight:800}.head h1{font-size:42px;margin:10px 0}.head p{font-size:13px;color:#8494ab}.head strong{position:absolute;right:0;bottom:30px;font-size:11px;color:#a8b5c8;border:1px solid #29384d;padding:8px 12px;border-radius:20px}.list{display:grid;gap:10px;padding-bottom:65px}.row{display:flex;align-items:center;gap:14px;border:1px solid #25344a;border-radius:16px;background:#101b2b;padding:17px}.ico{width:38px;height:38px;display:grid;place-items:center;background:#1a2a3e;color:#67e8f9;border-radius:11px}.info{flex:1;min-width:0}.short{color:#67e8f9;font-size:13px;font-weight:800}.info p{font-size:12px;color:#9aa8bc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:6px 0}.info small{color:#6d7f96;font-size:10px}.actions{display:flex;gap:6px}.actions button,.actions a,.secondary{background:#172538;color:#bdc9d9;border:1px solid #2a3b53;border-radius:8px;padding:8px 10px;font-size:11px;cursor:pointer}.actions .danger{color:#fda4af;border-color:#4e2d40;background:#281b29}.empty{text-align:center;padding:45px;border:1px solid #25344a;background:#101b2b;border-radius:16px;color:#8b9bb0}.empty a{color:#67e8f9}.overlay{position:fixed;inset:0;background:#030712c9;display:grid;place-items:center;padding:18px;z-index:30}.modal{position:relative;width:min(480px,100%);border:1px solid #2b3b51;border-radius:20px;background:#101b2b;padding:27px}.x{position:absolute;right:15px;top:12px;background:none;border:0;color:#9aa8bc;font-size:25px;cursor:pointer}.modal h2{margin:9px 0;font-size:25px}.fixed{padding:12px;background:#091321;border:1px solid #2b3b51;border-radius:9px;color:#67e8f9;word-break:break-all;font-size:12px}.modal p{font-size:11px;color:#7889a1}.modal label{display:block;font-size:12px;margin-top:20px}.modal input{display:block;width:100%;box-sizing:border-box;margin-top:8px;padding:13px;border-radius:9px;border:1px solid #2b3b51;background:#091321;color:#fff}.end{display:flex;justify-content:flex-end;gap:8px;margin-top:20px}.end button{background:linear-gradient(95deg,#7c3aed,#0891b2);color:white;border:0;border-radius:9px;padding:11px 13px;font-size:12px;cursor:pointer}.end .secondary{background:#172538;color:#bdc9d9;border:1px solid #2a3b53}.error{margin-top:10px;color:#ffbcc8;font-size:12px}@media(max-width:700px){header{height:auto;padding:15px 0;gap:13px;flex-wrap:wrap}nav{order:3;width:100%}nav a{flex:1;text-align:center}.head h1{font-size:35px}.head strong{position:static;display:inline-block;margin-top:8px}.row{flex-wrap:wrap}.info{width:calc(100% - 55px);flex:none}.actions{width:100%;padding-left:52px;flex-wrap:wrap}.actions button,.actions a{flex:1;text-align:center}}`}</style></div></main>;
 }
